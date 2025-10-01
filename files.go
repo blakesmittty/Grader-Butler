@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"net/http"
 	"os"
 	"os/exec"
 	"strings"
@@ -29,12 +28,12 @@ func createConfig() {
 			return
 		}
 
-		// Write to file
 		err = os.WriteFile("config.json", data, 0644)
 		if err != nil {
 			fmt.Println("Error writing file:", err)
 			return
 		}
+
 		logStatus("successfully created config.json, ready to be filled in\n")
 		logStatus("exiting, do not run with auto generated file\n")
 		os.Exit(0)
@@ -45,26 +44,7 @@ func createConfig() {
 }
 
 // downloadFile downloads a lab submission for a student and unzips it
-func downloadFile(url string, s *Student) string {
-	resp, err := http.Get(url)
-	if err != nil {
-		panic(err)
-	} else if resp.StatusCode != http.StatusOK {
-		fmt.Printf("Error with download request\n")
-	}
-	token := fmt.Sprintf("Bearer %s", auth)
-	req, err := http.NewRequest("GET", s.LabDownloadURL, nil)
-	if err != nil {
-		panic(err)
-	}
-	req.Header.Set("Authorization", token)
-
-	resp, err2 := client.Do(req)
-	if err2 != nil {
-		panic(err2)
-	}
-	defer resp.Body.Close()
-
+func downloadFile(ctx *Context, s *Student) string {
 	namePieces := strings.Split(s.Name, " ")
 	name := fmt.Sprintf("%s_%s", namePieces[0], namePieces[1])
 
@@ -75,7 +55,10 @@ func downloadFile(url string, s *Student) string {
 	}
 	defer f.Close()
 
-	io.Copy(f, resp.Body)
+	_, r := request(ctx, s.LabDownloadURL, true)
+	defer r.Close()
+
+	io.Copy(f, r)
 	dest := fmt.Sprintf("labs/%s", name)
 	cmd := exec.Command("unzip", fileName, "-d", dest)
 	execErr := cmd.Run()
@@ -86,6 +69,27 @@ func downloadFile(url string, s *Student) string {
 	}
 
 	return dest
+}
+
+// writeOutFiles creates a labs/ directory and downloads a lab submission for each student into labs/,
+// returning the names of the directories it wrote to.
+func writeOutFiles(ctx *Context, students []Student) []string {
+	os.Mkdir("labs", 0755)
+	var dirNames []string
+	for i, s := range students {
+		student := &students[i]
+		namePieces := strings.Split(student.Name, " ")
+		if _, err := os.Stat(fmt.Sprintf("labs/%s_%s.zip", namePieces[0], namePieces[1])); err == nil {
+			logError(fmt.Sprintf("zip download for %s already exists, not downloading\n", s.Name))
+		} else {
+			if student.LabDownloadURL != "" {
+				logStatus(fmt.Sprintf("downloading submission for %s\n", student.Name))
+				dirName := downloadFile(ctx, student)
+				dirNames = append(dirNames, dirName)
+			}
+		}
+	}
+	return dirNames
 }
 
 func compileLab(path string, labTitle string) {
@@ -117,23 +121,4 @@ func compileLab(path string, labTitle string) {
 		panic(backErr)
 	}
 
-}
-
-func writeOutFiles(students []Student) []string {
-	os.Mkdir("labs", 0755)
-	var dirNames []string
-	for i, s := range students {
-		student := &students[i]
-		namePieces := strings.Split(student.Name, " ")
-		if _, err := os.Stat(fmt.Sprintf("labs/%s_%s.zip", namePieces[0], namePieces[1])); err == nil {
-			logError(fmt.Sprintf("zip download for %s already exists, not downloading\n", s.Name))
-		} else {
-			if student.LabDownloadURL != "" {
-				logStatus(fmt.Sprintf("downloading submission for %s\n", student.Name))
-				dirName := downloadFile(s.LabDownloadURL, student)
-				dirNames = append(dirNames, dirName)
-			}
-		}
-	}
-	return dirNames
 }

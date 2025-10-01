@@ -65,7 +65,10 @@ func getUserIDs(studentNames []string, data []byte) []Student {
 	return students
 }
 
-func request(ctx *Context, url string) []byte {
+// request is a wrapper function for making http get requests, returns the data if not a download or the read closer for the
+// response if its a file download. if the read closer is returned, the caller must still close it.
+func request(ctx *Context, url string, isDownload bool) ([]byte, io.ReadCloser) {
+
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		panic(err)
@@ -75,13 +78,16 @@ func request(ctx *Context, url string) []byte {
 	if respErr != nil {
 		panic(respErr)
 	}
+	if isDownload {
+		return nil, resp.Body
+	}
 	defer resp.Body.Close()
 	data, readErr := io.ReadAll(resp.Body)
 	if readErr != nil {
 		panic(readErr)
 	}
+	return data, nil
 
-	return data
 }
 
 // buildLabDownloadURL builds the fully qualified url to download a students lab submission and returns it
@@ -98,7 +104,7 @@ func buildLabDownloadURL(ctx *Context, s *Student) string {
 func getStudents(ctx *Context) []Student {
 	var users []CanvasUser
 	var students []Student
-	data := request(ctx, ctx.Api.StudentIdURL)
+	data, _ := request(ctx, ctx.Api.StudentIdURL, false)
 	err := json.Unmarshal(data, &users)
 	if err != nil {
 		panic(err)
@@ -161,7 +167,7 @@ func getDownloadURLs(ctx *Context, students []Student) {
 		s := &students[i] // in a 'for i, value' loop we get a copy so we need the address of the student
 		if s.ID != 0 {    // id = 0 implies the student has dropped the class
 			url := buildLabDownloadURL(ctx, s)
-			data := request(ctx, url)
+			data, _ := request(ctx, url, false)
 			writeDownloadURL(s, data)
 		}
 	}

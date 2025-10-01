@@ -22,8 +22,7 @@ This program requires a config file to run. All values are strings
     "lab_title": "...",
     "students": [
         "John Doe",
-        "Jane Doe",
-        ...
+        "Jane Doe"
     ]
 }
 ```

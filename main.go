@@ -73,7 +73,7 @@ func main() {
 	// students := getDownloadURLs(&ctx, studentIDs)
 	students := getStudents(&ctx)
 	getDownloadURLs(&ctx, students)
-	writeOutFiles(students)
+	writeOutFiles(&ctx, students)
 	writeConclusion(students)
 
 }
