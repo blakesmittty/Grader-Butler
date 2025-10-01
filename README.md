@@ -7,7 +7,7 @@ ssh into COELinux
 
 Download the latest release directly:
 ```bash
-wget https://github.com/<your-username>/<your-repo>/releases/latest/download/<your-binary-or-archive>
+wget wget https://github.com/blakesmittty/Grader-Butler/releases/download/v0.5.0-beta/butler
 ```
 House the program in a local bin directory:
 ```bash
