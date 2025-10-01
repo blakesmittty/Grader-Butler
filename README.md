@@ -23,23 +23,8 @@ $  chmod +x ~/.local/bin/butler
 ```
 The program is now executable from any directory.
 
-House the program in a local bin directory:
-```bash
-$  mkdir -p ~/.local/bin
-```
-Ensure butler is in your working directory and:
-```bash
-$  cp butler ~/.local/bin/
-```
-Change permissions:
-```bash
-$  chmod +x ~/.local/bin/butler
-```
-The program is now executable from any directory.
-
 ## Setup
 
-This program requires a config file to run. All values are strings except the array of strings for students.
 This program requires a config file to run. All values are strings except the array of strings for students.
 
 ```json
