@@ -23,6 +23,11 @@ $  chmod +x ~/.local/bin/butler
 ```
 The program is now executable from any directory.
 
+Execute the program and generate a template config.json:
+```bash
+$  butler
+```
+
 ## Setup
 
 This program requires a config file to run. All values are strings except the array of strings for students.
