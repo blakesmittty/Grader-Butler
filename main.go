@@ -69,8 +69,6 @@ func buildContext() Context {
 func main() {
 	createConfig()
 	ctx := buildContext()
-	// studentIDs := getStudents(&ctx)
-	// students := getDownloadURLs(&ctx, studentIDs)
 	students := getStudents(&ctx)
 	getDownloadURLs(&ctx, students)
 	writeOutFiles(&ctx, students)
