@@ -35,8 +35,6 @@ var client = &http.Client{}
 // base url we use in every api call (no trailing slash)
 var baseURL = "https://osu.instructure.com/api/v1/courses"
 
-var auth string
-
 // loadConfig builds out and returns the config struct from the config.json file
 func loadConfig() Config {
 	var c Config
@@ -60,8 +58,6 @@ func buildContext() Context {
 	ctx.Api.BaseURL = "https://osu.instructure.com/api/v1/courses" // no trailing slash
 	// api endpoint we will use to gather ids for each student
 	ctx.Api.StudentIdURL = fmt.Sprintf("%s/%s/users?enrollment_type[]=student&per_page=100", ctx.Api.BaseURL, ctx.Cfg.CourseID)
-
-	auth = ctx.Cfg.AuthToken
 
 	return ctx
 }
