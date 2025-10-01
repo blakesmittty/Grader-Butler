@@ -6,13 +6,26 @@ build: env CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o build/graderb
 ## Installation (On COELinux)
 
 Download the latest release directly:
-
 ```bash
 wget https://github.com/<your-username>/<your-repo>/releases/latest/download/<your-binary-or-archive>
 ```
+House the program in a local bin directory:
+```bash
+$  mkdir -p ~/.local/bin
+```
+Ensure butler is in your working directory and:
+```bash
+$  cp butler ~/.local/bin/
+```
+Change permissions:
+```bash
+$  chmod +x ~/.local/bin/butler
+```
+The program is now executable from any directory.
+
 ## Setup
 
-This program requires a config file to run. All values are strings
+This program requires a config file to run. All values are strings except the array of strings for students.
 
 ```json
 {
@@ -51,5 +64,5 @@ This program requires a config file to run. All values are strings
 
 That's it! you should be ready to download student submissions now by simply invoking
 ```bash
-./<name>
+$  butler
 ```
