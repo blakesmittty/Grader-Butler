@@ -143,15 +143,20 @@ func writeDownloadURL(s *Student, data []byte) {
 		var info SubmissionHistory
 		json.Unmarshal(data, &info)
 		logStatus(fmt.Sprintf("found lab submission for (%s)\n", s.Name))
+		fmt.Printf("sub: %v\n", info)
+		fmt.Printf("lensubs: %d\n", len(info.Submissions))
 
 		// submission at position 0 will be the most recent
-		contentType := info.Submissions[0].ContentType
-		if contentType == "application/zip" {
-			s.LabDownloadURL = info.Submissions[0].DownloadUrl
-			TotalSize += info.Submissions[0].Size
-			s.Submitted = true
-		} else {
-			fmt.Printf("ISSUE: %s did not supply a zip file in their submission\n", s.Name)
+		if len(info.Submissions) != 0 {
+			contentType := info.Submissions[0].ContentType
+			if contentType == "application/zip" {
+				s.LabDownloadURL = info.Submissions[0].DownloadUrl
+				TotalSize += info.Submissions[0].Size
+				s.Submitted = true
+			} else {
+				//fmt.Printf("ISSUE: %s did not supply a zip file in their submission\n", s.Name)
+				logStatus(fmt.Sprintf("No submission for %s\n", s.Name))
+			}
 		}
 	} else {
 		// push student to unsubmitted queue for printing at the end
