@@ -143,8 +143,6 @@ func writeDownloadURL(s *Student, data []byte) {
 		var info SubmissionHistory
 		json.Unmarshal(data, &info)
 		logStatus(fmt.Sprintf("found lab submission for (%s)\n", s.Name))
-		fmt.Printf("sub: %v\n", info)
-		fmt.Printf("lensubs: %d\n", len(info.Submissions))
 
 		// submission at position 0 will be the most recent
 		if len(info.Submissions) != 0 {
